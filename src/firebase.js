@@ -21,12 +21,12 @@ import {
 } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBwPT2BupE2KuqEYt7qXBLN15gb82xOiF8",
-  authDomain: "yournotes-9208e.firebaseapp.com",
-  projectId: "yournotes-9208e",
-  storageBucket: "yournotes-9208e.appspot.com",
-  messagingSenderId: "29856966049",
-  appId: "1:29856966049:web:120b4dd3c10a0eb61e57e0"
+  apiKey: "AIzaSyAs29XWrJoeb82DrGP0t1BbWqk3_dA6PL0",
+  authDomain: "keep-clone-75661.firebaseapp.com",
+  projectId: "keep-clone-75661",
+  storageBucket: "keep-clone-75661.appspot.com",
+  messagingSenderId: "882826165769",
+  appId: "1:882826165769:web:8bd79dca0eabfc486bc2d8"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -65,6 +65,9 @@ const google = () => {
 
 export {
   auth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  provider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   google,
@@ -74,4 +77,4 @@ export {
   doc,
   updateDoc,
   arrayUnion
-};
+};  
