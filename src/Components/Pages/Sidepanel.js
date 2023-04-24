@@ -8,7 +8,7 @@ import Newnote from "../Addnote";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Hooks
-import useFirestore from "../../Hooks/useFirestore";
+
 
 const Sidepanel = () => {
   const { userId } = useParams();

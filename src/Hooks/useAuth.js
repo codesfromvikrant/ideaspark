@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   auth,
   signInWithPopup,
   GoogleAuthProvider,
   provider,
+  db,
+  doc,
+  getDoc,
+  setDoc
 } from '../firebase'
 
-export const useAuth = (userID) => {
+export const useAuth = () => {
   const temp = {
     userID: '',
     username: '',
@@ -20,6 +25,8 @@ export const useAuth = (userID) => {
 
   const [userData, setUserData] = useState(temp);
 
+  const navigate = useNavigate();
+
   const handleInput = (event) => {
     const { name, value } = event.target;
     setUserData(prevState => ({
@@ -28,29 +35,55 @@ export const useAuth = (userID) => {
     }))
   }
 
-  const googleAuthHandle = () => {
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        console.log(user);
-        // ...
+  console.log(userData.userVerified)
+
+
+  useEffect(() => {
+    if (userData.userVerified) {
+      const docRef = doc(db, "users", userData.userID);
+
+      getDoc(docRef).then((docs) => {
+        if (docs.exists()) {
+          console.log(docs.data());
+          setUserData(prev => ({
+            ...prev,
+            notesData: docs.data().notesdata
+          }));
+        } else {
+          setDoc(doc(db, "users", userData.userID), {
+            username: userData.username,
+            email: userData.email,
+            notesdata: userData.notesData,
+          });
+        }
+
+        navigate(`/user/${userData.userID}`);
       }).catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        console.log(errorCode)
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      })
+        console.log("Error getting document:", error);
+      });
+
+    }
+  }, [userData]);
+
+  const googleSignin = () => {
+    (async function () {
+      try {
+        const userCredential = await signInWithPopup(auth, provider)
+        const { displayName, email, photoURL } = userCredential.user;
+
+        setUserData(prev => ({
+          ...prev,
+          userID: userCredential.user.uid,
+          username: displayName,
+          email: email,
+          userVerified: true
+        }))
+
+      } catch (error) {
+        console.log(error.message);
+      }
+    })();
   };
 
-  return { userData, setUserData, handleInput, googleAuthHandle };
+  return { userData, setUserData, handleInput, googleSignin };
 }
