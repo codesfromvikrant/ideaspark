@@ -19,51 +19,52 @@ export const useAuth = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    scratchpad: '',
     notesData: [],
     userVerified: false
   }
 
-  const [userData, setUserData] = useState(temp);
+  const [formData, setFormData] = useState(temp);
 
   const navigate = useNavigate();
 
   const handleInput = (event) => {
     const { name, value } = event.target;
-    setUserData(prevState => ({
+    setFormData(prevState => ({
       ...prevState,
       [name]: value
     }))
   }
 
-  console.log(userData.userVerified)
-
+  // console.log(formData.userVerified)
 
   useEffect(() => {
-    if (userData.userVerified) {
-      const docRef = doc(db, "users", userData.userID);
+    if (formData.userVerified) {
+      const docRef = doc(db, "users", formData.userID);
 
       getDoc(docRef).then((docs) => {
         if (docs.exists()) {
-          console.log(docs.data());
-          setUserData(prev => ({
-            ...prev,
-            notesData: docs.data().notesdata
-          }));
+          // console.log(docs.data());
+          // setFormData(prev => ({
+          //   ...prev,
+          //   notesData: docs.data().notesdata
+          // }));
         } else {
-          setDoc(doc(db, "users", userData.userID), {
-            username: userData.username,
-            email: userData.email,
-            notesdata: userData.notesData,
+          setDoc(doc(db, "users", formData.userID), {
+            username: formData.username,
+            email: formData.email,
+            notesdata: [],
+            scratchpad: ''
           });
         }
 
-        navigate(`/user/${userData.userID}`);
+        navigate(`/user/${formData.userID}`, { state: { userId: formData.userID, userVerified: formData.userVerified } });
       }).catch((error) => {
         console.log("Error getting document:", error);
       });
 
     }
-  }, [userData]);
+  }, [formData]);
 
   const googleSignin = () => {
     (async function () {
@@ -71,7 +72,7 @@ export const useAuth = () => {
         const userCredential = await signInWithPopup(auth, provider)
         const { displayName, email, photoURL } = userCredential.user;
 
-        setUserData(prev => ({
+        setFormData(prev => ({
           ...prev,
           userID: userCredential.user.uid,
           username: displayName,
@@ -85,5 +86,5 @@ export const useAuth = () => {
     })();
   };
 
-  return { userData, setUserData, handleInput, googleSignin };
+  return { formData, setFormData, handleInput, googleSignin };
 }

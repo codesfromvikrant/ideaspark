@@ -23,33 +23,34 @@ export default function RegisterUser() {
   const navigate = useNavigate();
 
   const [passmatch, setPassMatch] = useState("");
-  const { userData, setUserData, handleInput, googleSignin } = useAuth();
+  const { formData, setFormData, handleInput, googleSignin } = useAuth();
 
   const signup = (event) => {
     event.preventDefault();
     (async function () {
-      if (userData.password === userData.confirmPassword) {
+      if (formData.password === formData.confirmPassword) {
         try {
           const userCredential = await createUserWithEmailAndPassword(
             auth,
-            userData.email,
-            userData.password
+            formData.email,
+            formData.password
           ); // user verified
           const uid = userCredential.user.uid;
 
-          setUserData((prev) => ({
+          setFormData((prev) => ({
             ...prev,
             userID: uid,
             userVerified: true,
           }));
 
           setDoc(doc(db, "users", uid), {
-            username: userData.username,
-            email: userData.email,
-            notesdata: userData.notesData,
+            username: formData.username,
+            email: formData.email,
+            notesdata: [],
+            scratchpad: "",
           });
 
-          navigate(`/user/${uid}`);
+          //navigate(`/user/${uid}`);
         } catch (error) {
           console.log(error.message);
         }
@@ -63,7 +64,7 @@ export default function RegisterUser() {
     <>
       <form
         onSubmit={signup}
-        className="w-1/3 mx-auto bg-white border-2 border-gray-200 p-10 mt-16 rounded-md"
+        className="max-w-xl sm:mx-auto mx-4 bg-white  sm:p-10 p-4 py-10 mt-16 shadow-2xl rounded-md"
       >
         <img src={EvernoteLogo} alt="" />
         <div className="mt-3">
@@ -71,7 +72,7 @@ export default function RegisterUser() {
             User Name :
           </label>
           <input
-            value={userData.username}
+            value={formData.username}
             onChange={handleInput}
             name="username"
             type="text"
@@ -86,7 +87,7 @@ export default function RegisterUser() {
             Email ID :
           </label>
           <input
-            value={userData.email}
+            value={formData.email}
             onChange={handleInput}
             name="email"
             type="text"
@@ -101,7 +102,7 @@ export default function RegisterUser() {
             Password :
           </label>
           <input
-            value={userData.password}
+            value={formData.password}
             onChange={handleInput}
             name="password"
             type="password"
@@ -116,7 +117,7 @@ export default function RegisterUser() {
             Confirm Password :
           </label>
           <input
-            value={userData.confirmPassword}
+            value={formData.confirmPassword}
             onChange={handleInput}
             name="confirmPassword"
             type="password"

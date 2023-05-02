@@ -14,7 +14,7 @@ import { auth, signInWithEmailAndPassword } from "../../firebase";
 export default function LoginUser() {
   const navigate = useNavigate();
 
-  const { userData, setUserData, handleInput, googleSignin } = useAuth();
+  const { formData, setFormData, handleInput, googleSignin } = useAuth();
 
   const signup = (event) => {
     event.preventDefault();
@@ -22,12 +22,12 @@ export default function LoginUser() {
       try {
         const userCredential = await signInWithEmailAndPassword(
           auth,
-          userData.email,
-          userData.password
+          formData.email,
+          formData.password
         ); // user verified
         const uid = userCredential.user.uid;
 
-        setUserData((prev) => ({
+        setFormData((prev) => ({
           ...prev,
           userID: uid,
           userVerified: true,
@@ -42,7 +42,7 @@ export default function LoginUser() {
     <>
       <form
         onSubmit={signup}
-        className="w-1/3 mx-auto bg-white border-2 border-gray-200 p-10 mt-16 rounded-md"
+        className="max-w-xl sm:mx-auto bg-white  sm:p-10 p-6 py-10 mt-16 mx-4 shadow-2xl rounded-md"
       >
         <img src={EvernoteLogo} alt="evernote_logo" />
         <div className="mt-3">
@@ -50,7 +50,7 @@ export default function LoginUser() {
             Email Id :
           </label>
           <input
-            value={userData.email}
+            value={formData.email}
             onChange={handleInput}
             name="email"
             type="email"
@@ -65,7 +65,7 @@ export default function LoginUser() {
             Password :
           </label>
           <input
-            value={userData.password}
+            value={formData.password}
             onChange={handleInput}
             name="password"
             type="password"
