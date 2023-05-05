@@ -58,7 +58,9 @@ export const useAuth = () => {
           });
         }
 
-        navigate(`/user/${formData.userID}`, { state: { userId: formData.userID, userVerified: formData.userVerified } });
+        sessionStorage.setItem('userId', formData.userID);
+        sessionStorage.setItem('userVerified', formData.userVerified);
+        navigate(`/user/${formData.userID}`);
       }).catch((error) => {
         console.log("Error getting document:", error);
       });

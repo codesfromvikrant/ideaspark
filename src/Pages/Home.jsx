@@ -1,9 +1,9 @@
 //Components
 import RegisterUser from "./RegisterUser";
 import LoginUser from "./LoginUser";
-import Header from "../Header";
+import Header from "../Components/Header";
 // Images
-import HeroImage from "../../images/heroimage.png";
+import HeroImage from "../images/heroimage.png";
 // Routing
 import { Link } from "react-router-dom";
 
@@ -12,32 +12,35 @@ const Home = () => {
     <>
       <Header />
       <div className="max-w-6xl mx-auto">
-        <div className="lg:max-w-5xl text-center lg:mx-auto mx-4 mt-16">
-          <h3 className="lg:text-6xl sm:text-4xl text-3xl sm:font-semibold font-bold">
-            Tame your work, organize your life
+        <div className="lg:max-w-5xl text-center lg:mx-auto mx-4 mt-10">
+          <h3 className="text-slate-800 sm:text-4xl text-3xl sm:font-semibold font-bold">
+            Ignite Your Creativity and Organize Your Ideas with Idea Spark: The
+            All-In-One Notes App
           </h3>
-          <p className="mdtext-2xl text-lg md:my-8 my-4">
-            Remember everything and tackle any project with your notes, tasks,
-            and schedule all in one place.
+          <p className="text-slate-700 mdtext-2xl text-lg md:my-4 my-2">
+            Welcome to Idea Spark, where creativity ignites! With our
+            user-friendly note-taking platform and advanced editing features,
+            you can capture and develop your ideas with ease, allowing you to
+            turn inspiration into reality.
           </p>
           <Link to="/signup">
-            <button className="bg-green-600 text-white font-medium py-4 sm:px-16 px-6 rounded">
+            <button className="bg-blue-500 tracking-wider text-white font-semibold py-4 sm:px-16 px-6 rounded">
               Sign Up for Free
             </button>
           </Link>
           <br />
-          <Link>
+          <Link to="/login">
             <p className="text-base font-medium underline">
               Already Have an Account? Log In
             </p>
           </Link>
         </div>
 
-        <div className="grid lg:grid-cols-4 grid-cols-1  gap-4 mt-16 mx-4">
-          <div className="w-full col-span-3">
-            <img src={HeroImage} className="w-full" alt="" />
+        <div className="mt-10 mx-4">
+          <div className="max-w-3xl mx-auto  ">
+            <img src={HeroImage} className="w-full rounded-md" alt="" />
           </div>
-          <div className="">
+          <div className="lg:max-w-5xl mx-auto mt-10 grid md:grid-cols-2 grid-cols-1 gap-4">
             <div className="">
               <h4 className="md:font-bold font-extrabold text-xl">
                 WORK ANYWHERE
@@ -47,7 +50,6 @@ const Home = () => {
                 your devices.
               </p>
             </div>
-            <br />
 
             <div className="">
               <h4 className="md:font-bold font-extrabold text-xl">
@@ -58,7 +60,6 @@ const Home = () => {
                 PDFs, and documents.
               </p>
             </div>
-            <br />
 
             <div className="">
               <h4 className="md:font-bold font-extrabold text-xl">
@@ -69,7 +70,6 @@ const Home = () => {
                 done more easily.
               </p>
             </div>
-            <br />
 
             <div className="">
               <h4 className="md:font-bold font-extrabold text-xl">

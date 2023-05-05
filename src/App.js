@@ -3,11 +3,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 // Styling
 import './App.css';
 // Components
-import Home from './Components/Pages/Home';
-import RegisterUser from './Components/Pages/RegisterUser';
-import LoginUser from './Components/Pages/LoginUser';
-import Client from './Components/Pages/Client';
-import Dashboard from './Components/Pages/Dashboard'
+import Home from './Pages/Home';
+import RegisterUser from './Pages/RegisterUser';
+import LoginUser from './Pages/LoginUser';
+import Client from './Pages/Client';
+import Dashboard from './Pages/Dashboard'
 import Texteditor from "./Components/Texteditor";
 
 const App = () => {

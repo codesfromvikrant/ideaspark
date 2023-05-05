@@ -24,7 +24,7 @@ const Texteditor = () => {
     trash: false,
   });
 
-  console.log(noteData);
+  // console.log(noteData);
 
   useEffect(() => {
     async function getData() {
@@ -33,7 +33,7 @@ const Texteditor = () => {
       //console.log(notesdata);
 
       notesdata.forEach((obj) => {
-        console.log(obj);
+        // console.log(obj);
         if (obj.id === noteID) {
           setNoteData((prev) => ({
             ...prev,
@@ -176,18 +176,18 @@ const Texteditor = () => {
           value={noteData.title}
           onChange={handleTitle}
           placeholder="Write Your Title Here..."
-          className="w-full py-2 px-4 rounded-full outline-2 outline-gray-900"
+          className="w-full py-2 px-4 rounded-md shadow outline-2 outline-gray-900"
         />
         <button
           onClick={saveNote}
-          className="text-gray-200 font-semibold bg-gray-900 w-max shadow px-6 py-2 rounded-full "
+          className="text-gray-200 hover:text-gray-200 hover:bg-blue-500 hover:shadow-2xl transition-all duration-500 font-semibold bg-gray-900 w-max shadow px-6 py-2 rounded-md"
         >
           Save
         </button>
 
         <button
           onClick={deleteNote}
-          className="text-gray-900 font-semibold bg-gray-300 w-max shadow px-6 py-2 rounded-full"
+          className="text-gray-900 hover:text-gray-200 hover:bg-blue-500 hover:shadow-2xl transition-all duration-500 font-semibold bg-gray-100 w-max shadow px-6 py-2 rounded-md"
         >
           Delete
         </button>

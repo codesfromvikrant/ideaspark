@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import GoogleLogo from "../../images/googlelogo.png";
-import EvernoteLogo from "../../images/evernote_logo.svg";
+import GoogleLogo from "../images/googlelogo.png";
+import EvernoteLogo from "../images/idea_spark_logo.png";
 
 // Routing
 import { Link, useNavigate } from "react-router-dom";
 
 // Hooks
-import { useAuth } from "../../Hooks/useAuth";
+import { useAuth } from "../Hooks/useAuth";
 
 // Firebase
-import { auth, signInWithEmailAndPassword } from "../../firebase";
+import { auth, signInWithEmailAndPassword } from "../firebase";
 
 export default function LoginUser() {
   const navigate = useNavigate();
@@ -42,9 +42,9 @@ export default function LoginUser() {
     <>
       <form
         onSubmit={signup}
-        className="max-w-xl sm:mx-auto bg-white  sm:p-10 p-6 py-10 mt-16 mx-4 shadow-2xl rounded-md"
+        className="max-w-xl sm:mx-auto bg-white  sm:p-10 p-6 py-10 my-16 mx-4 shadow-2xl rounded-md"
       >
-        <img src={EvernoteLogo} alt="evernote_logo" />
+        <img src={EvernoteLogo} alt="evernote_logo" className="w-40 mx-auto" />
         <div className="mt-3">
           <label htmlFor="" className="text-gray-800 font-semibold">
             Email Id :
@@ -88,7 +88,7 @@ export default function LoginUser() {
           <input
             type="submit"
             value="Log In"
-            className="bg-blue-600 text-white font-semibold w-full py-3 px-6 rounded mt-3 cursor-pointer hover:shadow-2xl"
+            className="bg-blue-500 text-white font-semibold w-full py-3 px-6 rounded mt-3 cursor-pointer hover:shadow-2xl"
           />
         </div>
         <div

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import GoogleLogo from "../../images/googlelogo.png";
-import EvernoteLogo from "../../images/evernote_logo.svg";
+import GoogleLogo from "../images/googlelogo.png";
+import EvernoteLogo from "../images/idea_spark_logo.png";
 import { Link } from "react-router-dom";
 
 // Routing
@@ -14,10 +14,10 @@ import {
   colRef,
   db,
   doc,
-} from "../../firebase";
+} from "../firebase";
 
 // Hooks
-import { useAuth } from "../../Hooks/useAuth";
+import { useAuth } from "../Hooks/useAuth";
 
 export default function RegisterUser() {
   const navigate = useNavigate();
@@ -49,8 +49,6 @@ export default function RegisterUser() {
             notesdata: [],
             scratchpad: "",
           });
-
-          //navigate(`/user/${uid}`);
         } catch (error) {
           console.log(error.message);
         }
@@ -64,9 +62,9 @@ export default function RegisterUser() {
     <>
       <form
         onSubmit={signup}
-        className="max-w-xl sm:mx-auto mx-4 bg-white  sm:p-10 p-4 py-10 mt-16 shadow-2xl rounded-md"
+        className="max-w-xl sm:mx-auto mx-4 bg-white  sm:p-10 p-4 py-10 my-16 shadow-2xl rounded-md"
       >
-        <img src={EvernoteLogo} alt="" />
+        <img src={EvernoteLogo} alt="" className="w-40 mx-auto" />
         <div className="mt-3">
           <label htmlFor="" className="text-gray-800 font-semibold">
             User Name :
