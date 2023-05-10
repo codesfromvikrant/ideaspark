@@ -12,9 +12,13 @@ code {
     monospace;
 }
 
+/* Toggle Menu */
+
+.toggle-menu {
+  display: block;
+}
+
 /* width */
-
-
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

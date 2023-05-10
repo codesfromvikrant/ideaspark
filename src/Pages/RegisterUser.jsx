@@ -47,7 +47,8 @@ export default function RegisterUser() {
             username: formData.username,
             email: formData.email,
             notesdata: [],
-            scratchpad: "",
+            tags: [],
+            trash: [],
           });
         } catch (error) {
           console.log(error.message);

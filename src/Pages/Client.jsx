@@ -1,12 +1,35 @@
 import React, { useEffect, useState } from "react";
 import Sidepanel from "../Components/Sidepanel";
-import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import {
+  Outlet,
+  useNavigate,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
 import { db, doc, getDoc, setDoc } from "../firebase";
 import Dashboard from "./Dashboard";
 
 const Client = () => {
+  const initialData = {
+    verified: false,
+    userID: "",
+    username: "",
+    email: "",
+    notesData: [],
+    tags: [],
+  };
+
+  const [userData, setUserData] = useState(initialData);
+  const userId = sessionStorage.getItem("userId");
+  const userVerified = sessionStorage.getItem("userVerified");
   const location = useLocation();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [savedDocs, setSavedDocs] = useState([]);
+  const [trashedDocs, setTrashedDocs] = useState([]);
+  const [filteredDocs, setFilteredDocs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState({
     tagmsg: "",
     prevmasg: "",
@@ -14,20 +37,10 @@ const Client = () => {
     savemsg: "",
     deletmsg: "",
   });
+
+  // set the state by clicking the tags in the sidepanel which allow us in filtering the notes
   const [filterTag, setFilterTag] = useState("");
   const [SidepanelOpen, setSidepanelOpen] = useState(true);
-
-  const initialData = {
-    verified: false,
-    userID: "",
-    username: "",
-    email: "",
-    notesData: [],
-  };
-
-  const [userData, setUserData] = useState(initialData);
-  const userId = sessionStorage.getItem("userId");
-  const userVerified = sessionStorage.getItem("userVerified");
 
   // Get the user data from the database
   async function getUserData() {
@@ -41,8 +54,13 @@ const Client = () => {
           username: docSnap.data().username,
           email: docSnap.data().email,
           notesData: docSnap.data().notesdata,
+          tags: docSnap.data().tags,
           verified: userVerified,
         }));
+        setSavedDocs(docSnap.data().notesdata);
+        setFilteredDocs(docSnap.data().notesdata);
+        setTrashedDocs(docSnap.data().trash);
+        setLoading(false);
       }
     } catch (err) {
       console.log(err.message);
@@ -58,6 +76,19 @@ const Client = () => {
       navigate("/login");
     }
   }, [userId, userVerified, navigate]);
+
+  // const viewDeletedDocs = () => {
+  //   setFilteredDocs(trashedDocs);
+  // };
+
+  const viewSavedDocs = () => {
+    setSearchParams((prevParam) => {
+      prevParam.delete("trash");
+      prevParam.delete("tag");
+      return prevParam;
+    });
+    setFilteredDocs(savedDocs);
+  };
 
   return (
     <div className="h-[100vh] flex justify-start items-start relative">
@@ -75,7 +106,20 @@ const Client = () => {
         setUserData={setUserData}
         setFilterTag={setFilterTag}
       />
-      <Outlet context={{ userData, filterTag, setFilterTag }} />
+      <Outlet
+        context={{
+          userData,
+          setUserData,
+          savedDocs,
+          setSavedDocs,
+          trashedDocs,
+          setTrashedDocs,
+          filteredDocs,
+          setFilteredDocs,
+          viewSavedDocs,
+          loading,
+        }}
+      />
     </div>
   );
 };

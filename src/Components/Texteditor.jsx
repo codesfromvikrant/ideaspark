@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useOutletContext } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
@@ -12,28 +12,58 @@ import {
   arrayUnion,
 } from "../firebase";
 
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, false] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [
+      { list: "ordered" },
+      { list: "bullet" },
+      { indent: "-1" },
+      { indent: "+1" },
+    ],
+    ["link", "image"],
+    ["clean"],
+  ],
+  clipboard: {
+    matchVisual: false,
+  },
+};
+
+const formats = [
+  "header",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "indent",
+  "link",
+  "image",
+];
+
 const Texteditor = () => {
   const [saved, setSaved] = useState(false);
   const location = useLocation();
+  const { userData, trashedDocs, setTrashedDocs } = useOutletContext();
+  const { noteID } = useParams();
 
-  const { userId, noteID } = useParams();
+  // console.log(...trashedDocs);
+
   const [noteData, setNoteData] = useState({
     id: noteID,
     title: "",
     content: "",
-    trash: false,
+    tags: [],
   });
-
-  // console.log(noteData);
 
   useEffect(() => {
     async function getData() {
-      const data = (await getDoc(doc(colRef, userId))).data();
+      const data = (await getDoc(doc(colRef, userData.userID))).data();
       const { notesdata } = data;
-      //console.log(notesdata);
-
       notesdata.forEach((obj) => {
-        // console.log(obj);
         if (obj.id === noteID) {
           setNoteData((prev) => ({
             ...prev,
@@ -46,38 +76,6 @@ const Texteditor = () => {
     getData();
   }, [location]);
 
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, false] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["link", "image"],
-      ["clean"],
-    ],
-    clipboard: {
-      matchVisual: false,
-    },
-  };
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "list",
-    "bullet",
-    "indent",
-    "link",
-    "image",
-  ];
-
   const handleTextEditor = (value) => {
     setNoteData((prev) => ({ ...prev, content: value }));
   };
@@ -86,71 +84,71 @@ const Texteditor = () => {
     setNoteData((prev) => ({ ...prev, title: value }));
   };
 
-  // Styling Components
-  // const style = {
-  //   resize: 'none',
-  //   overflow: 'hidden',
-  //   position: 'relative',
-  //   width: '100%'
-  // }
-
+  // Save Note and add to notesdata
   const saveNote = () => {
     setSaved(true);
-
     (async () => {
-      const data = (await getDoc(doc(colRef, userId))).data();
-
+      const data = (await getDoc(doc(colRef, userData.userID))).data();
       const { notesdata } = data;
-      console.log(notesdata);
+
       if (notesdata.length === 0) {
-        updateDoc(doc(colRef, userId), {
+        updateDoc(doc(colRef, userData.userID), {
           notesdata: arrayUnion(noteData),
         });
-        //alert("Note Saved");
       }
 
       notesdata.forEach((obj) => {
         if (obj.id === noteID) {
           obj.title = noteData.title;
           obj.content = noteData.content;
-          setNoteData((prev) => ({
-            ...prev,
-            trash: false,
-          }));
 
           const updatedArr = notesdata;
-          updateDoc(doc(colRef, userId), {
+          updateDoc(doc(colRef, userData.userID), {
             notesdata: updatedArr,
           });
-
-          //alert("Note Saved");
         } else {
-          updateDoc(doc(colRef, userId), {
+          updateDoc(doc(colRef, userData.userID), {
             notesdata: arrayUnion(noteData),
           });
-
-          //alert("Note Saved");
         }
       });
     })();
   };
 
-  //console.log(noteData);
-
+  // Delete Note and add to trash
   const deleteNote = () => {
     (async () => {
-      const data = (await getDoc(doc(colRef, userId))).data();
+      const data = (await getDoc(doc(colRef, userData.userID))).data();
+      const { notesdata, trash } = data;
+      const updatedArr = notesdata.filter((el) => el.id !== noteID);
+      //console.log(trash);
+      if (trash.length === 0) {
+        updateDoc(doc(colRef, userData.userID), {
+          notesdata: updatedArr,
+          trash: arrayUnion(noteData),
+        });
 
-      const { notesdata } = data;
-      console.log(notesdata);
+        setNoteData((prev) => ({
+          ...prev,
+          title: "",
+          content: "",
+        }));
+
+        return;
+      }
 
       notesdata.forEach((obj) => {
         if (obj.id === noteID) {
-          obj.trash = true;
+          setTrashedDocs([...trashedDocs, obj]);
+          setNoteData((prev) => ({
+            ...prev,
+            title: "",
+            content: "",
+          }));
 
-          const updatedArr = notesdata;
-          updateDoc(doc(colRef, userId), {
+          updateDoc(doc(colRef, userData.userID), {
             notesdata: updatedArr,
+            trash: [...trashedDocs, obj],
           });
         } else {
           setNoteData((prev) => ({
@@ -160,16 +158,11 @@ const Texteditor = () => {
           }));
         }
       });
-
-      //alert("Note Deleted");
     })();
   };
 
   return (
     <div className="w-full p-4 h-[100vh] bg-gray-200  overflow-y-scroll">
-      {/* <textarea onChange={handleInput} name="title" style={style} className="p-4 rounded text-4xl outline-none" placeholder="Title"></textarea>
-      <textarea onChange={handleInput} name="content" style={{ ...style, height: '100%' }} className="p-4 rounded text-lg outline-none" placeholder="Start Writing..."></textarea> */}
-
       <div className="action-bar mb-2 flex justify-end gap-3">
         <input
           type="text"

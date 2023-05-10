@@ -20,11 +20,11 @@ const Sidepanel = ({
   const { userId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [tags, setTags] = useState([]);
+  // const [tags, setTags] = useState([]);
   const [addTag, setAddTag] = useState("");
   const [message, setMessage] = useState("");
 
-  function handleTrash(key, value) {
+  function filtering(key, value) {
     setSearchParams((prevParam) => {
       prevParam.set(key, value);
       return prevParam;
@@ -36,7 +36,11 @@ const Sidepanel = ({
       const docRef = doc(db, "users", userId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setTags(docSnap.data().tags);
+        const tags = docSnap.data().tags;
+        setUserData((prev) => ({
+          ...prev,
+          tags: tags,
+        }));
       }
     } catch (err) {
       console.log(err.message);
@@ -49,7 +53,7 @@ const Sidepanel = ({
     }
   }, [userData.userID]);
 
-  const tagList = tags.map((tag) => {
+  const tagList = userData.tags.map((tag) => {
     return (
       <div
         key={nanoid()}
@@ -60,7 +64,8 @@ const Sidepanel = ({
       >
         <p
           onClick={() => {
-            setFilterTag(tag.tagname);
+            // setFilterTag(tag.tagname);
+            filtering("tag", tag.tagname);
           }}
           className="cursor-pointer text-gray-400 text-sm hover:text-blue-500 capitalize"
         >
@@ -76,7 +81,7 @@ const Sidepanel = ({
   const addTagToDB = async () => {
     try {
       const tagadded = false;
-      tags.forEach((tag) => {
+      userData.tags.forEach((tag) => {
         if (tag.tagname.toLowerCase() === addTag.toLowerCase()) {
           setMessage("Tag already exists");
           tagadded = true;
@@ -89,7 +94,10 @@ const Sidepanel = ({
         const prevTags = docSnap.data().tags;
         const newTags = [...prevTags, { tagname: addTag, docscount: 0 }];
         await setDoc(docRef, { tags: newTags }, { merge: true });
-        setTags(newTags);
+        setUserData((prev) => ({
+          ...prev,
+          tags: newTags,
+        }));
       }
     } catch (err) {
       console.log(err.message);
@@ -149,7 +157,7 @@ const Sidepanel = ({
 
         <div
           onClick={() => {
-            handleTrash("trash", true);
+            filtering("trash", true);
           }}
           className="flex justify-start items-center gap-3 text-gray-300 font-medium my-4 cursor-pointer hover:bg-slate-800 hover:px-4 hover:py-3  hover:text-white hover:font-semibold transition-all duration-500 rounded-md"
         >

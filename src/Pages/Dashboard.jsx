@@ -19,7 +19,18 @@ const options = {
 const todayDate = date.toLocaleDateString("en-US", options);
 
 const Dashboard = () => {
-  const { userData, filterTag, setFilterTag } = useOutletContext();
+  const {
+    userData,
+    setUserData,
+    savedDocs,
+    setSavedDocs,
+    trashedDocs,
+    setTrashedDocs,
+    filteredDocs,
+    setFilteredDocs,
+    viewSavedDocs,
+    loading,
+  } = useOutletContext();
 
   const style = {
     background: `url(${DashboardImg})`,
@@ -50,7 +61,18 @@ const Dashboard = () => {
 
         <div className="flex justify-start items-center gap-4 sm:w-[90%] mx-auto z-50 h-max">
           <PassDataContext.Provider
-            value={{ userData, filterTag, setFilterTag }}
+            value={{
+              userData,
+              setUserData,
+              savedDocs,
+              setSavedDocs,
+              trashedDocs,
+              setTrashedDocs,
+              filteredDocs,
+              setFilteredDocs,
+              viewSavedDocs,
+              loading,
+            }}
           >
             <Docscollec />
           </PassDataContext.Provider>

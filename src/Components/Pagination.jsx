@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const Pagination = ({ docsPerPage, totalDocs, paginate }) => {
   const totalPgBtn = Math.ceil(totalDocs / docsPerPage);
-  console.log(totalPgBtn);
+  // console.log(totalPgBtn);
   const [start, setStart] = useState(1);
   const btnCount = 4;
   const [end, setEnd] = useState(1);

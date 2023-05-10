@@ -39,33 +39,24 @@ export const useAuth = () => {
   // console.log(formData.userVerified)
 
   useEffect(() => {
-    if (formData.userVerified) {
-      const docRef = doc(db, "users", formData.userID);
-
-      getDoc(docRef).then((docs) => {
-        if (docs.exists()) {
-          // console.log(docs.data());
-          // setFormData(prev => ({
-          //   ...prev,
-          //   notesData: docs.data().notesdata
-          // }));
-        } else {
-          setDoc(doc(db, "users", formData.userID), {
-            username: formData.username,
-            email: formData.email,
-            notesdata: [],
-            scratchpad: ''
-          });
-        }
-
-        sessionStorage.setItem('userId', formData.userID);
-        sessionStorage.setItem('userVerified', formData.userVerified);
-        navigate(`/user/${formData.userID}`);
-      }).catch((error) => {
-        console.log("Error getting document:", error);
-      });
-
-    }
+    if (!formData.userVerified) return;
+    const docRef = doc(db, "users", formData.userID);
+    getDoc(docRef).then((docs) => {
+      if (!docs.exists()) {
+        setDoc(doc(db, "users", formData.userID), {
+          username: formData.username,
+          email: formData.email,
+          notesdata: [],
+          tags: [],
+          trash: [],
+        });
+      }
+      sessionStorage.setItem('userId', formData.userID);
+      sessionStorage.setItem('userVerified', formData.userVerified);
+      navigate(`/user/${formData.userID}`);
+    }).catch((error) => {
+      console.log("Error getting document:", error);
+    });
   }, [formData]);
 
   const googleSignin = () => {
