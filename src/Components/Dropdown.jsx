@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import React, { useState, useContext } from "react";
 import { db, doc, getDoc, setDoc } from "../firebase";
 import { PassDataContext } from "../Contexts/PassData";
+import { AppContext } from "../Contexts/AppContext";
 
 const Dropdown = ({
   id,
@@ -10,8 +11,10 @@ const Dropdown = ({
   setFilteredDocs,
   notetags,
 }) => {
+  const { state, dispatch } = useContext(AppContext);
   const { userData, setUserData } = useContext(PassDataContext);
   const [tagsinnotes, setTagsInNote] = useState(notetags);
+
   const addtag = async (tagname, id) => {
     try {
       const docRef = doc(db, "users", userData.userID);

@@ -30,7 +30,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 const colRef = collection(db, "users");
 
@@ -43,7 +42,6 @@ const provider = new GoogleAuthProvider();
 export {
   auth,
   signInWithPopup,
-  GoogleAuthProvider,
   provider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,

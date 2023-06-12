@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
   auth,
   signInWithPopup,
-  GoogleAuthProvider,
   provider,
   db,
   doc,
@@ -19,8 +18,6 @@ export const useAuth = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    scratchpad: '',
-    notesData: [],
     userVerified: false
   }
 
@@ -36,8 +33,6 @@ export const useAuth = () => {
     }))
   }
 
-  // console.log(formData.userVerified)
-
   useEffect(() => {
     if (!formData.userVerified) return;
     const docRef = doc(db, "users", formData.userID);
@@ -51,8 +46,14 @@ export const useAuth = () => {
           trash: [],
         });
       }
-      sessionStorage.setItem('userId', formData.userID);
-      sessionStorage.setItem('userVerified', formData.userVerified);
+      // Changes made here
+      const userData = {
+        uid: formData.userID,
+        verified: formData.userVerified,
+      }
+      sessionStorage.setItem('userData', JSON.stringify(userData));
+      // sessionStorage.setItem('userId', formData.userID);
+      // sessionStorage.setItem('userVerified', formData.userVerified);
       navigate(`/user/${formData.userID}`);
     }).catch((error) => {
       console.log("Error getting document:", error);
@@ -63,7 +64,7 @@ export const useAuth = () => {
     (async function () {
       try {
         const userCredential = await signInWithPopup(auth, provider)
-        const { displayName, email, photoURL } = userCredential.user;
+        const { displayName, email } = userCredential.user;
 
         setFormData(prev => ({
           ...prev,

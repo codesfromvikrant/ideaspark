@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext, useMemo } from "react";
-import { PassDataContext } from "../Contexts/PassData";
 import { getDoc, doc, colRef, updateDoc } from "../firebase";
 import { Link, useSearchParams } from "react-router-dom";
 import parse from "html-react-parser";
@@ -7,107 +6,69 @@ import Pagination from "./Pagination";
 import SearchBar from "./SearchBar";
 import Dropdown from "./Dropdown";
 import Menu from "./Menu";
+import { AppContext } from "../Contexts/AppContext";
 
 const Notescollec = () => {
-  const {
-    userData,
-    setUserData,
-    savedDocs,
-    setSavedDocs,
-    trashedDocs,
-    setTrashedDocs,
-    filteredDocs,
-    setFilteredDocs,
-    viewSavedDocs,
-    loading,
-  } = useContext(PassDataContext);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [docsPerPage, setDocsPerPage] = useState(8);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { state, dispatch } = useContext(AppContext);
+  const { user, loading, docsPerPage } = state;
+  console.log(user);
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const trash = searchParams.get("trash");
   const tag = searchParams.get("tag");
   const page = searchParams.get("page") ? searchParams.get("page") : 1;
 
-  // Pagination
-  const paginate = (key, value) => {
-    setSearchParams((prevParam) => {
-      prevParam.set(key, value);
-      return prevParam;
-    });
-  };
-
-  // Filter Docs by tags
-  useEffect(() => {
-    if (tag) {
-      const filtered = savedDocs.filter((obj) => {
-        if (obj.tags === undefined) return false;
-        return obj.tags.includes(tag);
-      });
-      setFilteredDocs(filtered);
-    }
-    if (trash) {
-      setFilteredDocs(trashedDocs);
-    }
-  }, [tag, trash]);
-
   // Search Docs
-  const searchDocs = () => {
-    const searchedDocs = filteredDocs.filter((obj) => {
+  const searchDocs = (e) => {
+    const searchTerm = e.target.value;
+    const searchedDocs = user.notesData.filter((obj) => {
       return (
         obj.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         obj.content.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
-    setFilteredDocs(searchedDocs);
+    dispatch({ type: "SET_FILTERED_DATA", payload: searchedDocs });
   };
 
-  const openDialog = (id) => {
-    const dialog = document.querySelector(`#dropdown-${id}`);
-    dialog.classList.toggle("hidden");
-  };
+  // const openDialog = (id) => {
+  //   const dialog = document.querySelector(`#dropdown-${id}`);
+  //   dialog.classList.toggle("hidden");
+  // };
 
   // Move the doc to trash
   const moveToTrash = (id) => {
-    const newDocs = filteredDocs.map((obj) => {
+    const newDocs = user.filteredData.map((obj) => {
       if (obj.id === id) {
-        setTrashedDocs([...trashedDocs, obj]);
-        const updateDocs = filteredDocs.filter((obj) => obj.id !== id);
-        setFilteredDocs(updateDocs);
-        setSavedDocs(updateDocs);
-
-        updateDoc(doc(colRef, userData.userID), {
+        const prevTrash = user.trash;
+        dispatch({ type: "SET_TRASH", payload: [...prevTrash, obj] });
+        const updateDocs = user.filteredData.filter((obj) => obj.id !== id);
+        dispatch({ type: "SET_FILTERED_DATA", payload: updateDocs });
+        dispatch({ type: "SET_NOTES_DATA", payload: updateDocs });
+        updateDoc(doc(colRef, user.userID), {
           notesdata: updateDocs,
-          trash: [...trashedDocs, obj],
+          trash: [...prevTrash, obj],
         });
       }
       return obj;
     });
   };
 
-  const Docs = filteredDocs.map((obj, i) => {
+  const Docs = user.filteredData.map((obj, i) => {
     // conditions for pagination
     let startDocs = (page - 1) * docsPerPage;
     let endDocs = page * docsPerPage;
-    if (endDocs > savedDocs.length) endDocs = savedDocs.length;
+    if (endDocs > user.notesData.length) endDocs = user.notesData.length;
     if (i < startDocs || i >= endDocs) return null;
 
     const content = obj.content;
-
     return (
       <div
         key={obj.id}
         className="cursor-pointer h-[15rem] p-4 rounded relative text-sm bg-white text-gray-900 overflow-hidden"
       >
-        <Menu openDialog={openDialog} id={obj.id} />
-        <Dropdown
-          id={obj.id}
-          moveToTrash={moveToTrash}
-          filteredDocs={filteredDocs}
-          setFilteredDocs={setFilteredDocs}
-          notetags={obj.tags}
-        />
-        <Link to={`/user/${userData.userID}/n/${obj.id}`}>
+        {/* <Menu openDialog={openDialog} id={obj.id} /> */}
+        {/* <Dropdown id={obj.id} moveToTrash={moveToTrash} notetags={obj.tags} /> */}
+        <Link to={`/user/${user.userID}/n/${obj.id}`}>
           <p className="font-bold text-base hover:text-blue-600 transition-all">
             {obj.title ? obj.title : "Untitled"}
           </p>
@@ -123,11 +84,7 @@ const Notescollec = () => {
   return (
     <section className="w-full">
       <div className="w-full">
-        <SearchBar
-          searchDocs={searchDocs}
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-        />
+        <SearchBar searchDocs={searchDocs} />
       </div>
 
       <div className="bg-gradient-to-r from-slate-200 to-gray-200 shadow-2xl w-full sm:p-6 p-4 py-6 rounded-md z-40 relative ">
@@ -137,7 +94,10 @@ const Notescollec = () => {
               Deleted Docs...
             </h3>
             <button
-              onClick={viewSavedDocs}
+              onClick={dispatch({
+                type: "SET_FILTERED_DATA",
+                payload: user.notesData,
+              })}
               className="bg-blue-600 hover:bg-blue-700 transition-all text-sm text-white p-2 rounded-md tracking-wider"
             >
               <span>&larr;</span> Back to Saved Docs...
@@ -157,9 +117,10 @@ const Notescollec = () => {
             </p>
             <button
               className="bg-blue-600 text-white text-sm font-semibold tracking-wider px-4 py-2 rounded-md hover:bg-blue-700 transition-all"
-              onClick={() => {
-                viewSavedDocs();
-              }}
+              onClick={dispatch({
+                type: "SET_FILTERED_DATA",
+                payload: user.notesData,
+              })}
             >
               Clear Filter
             </button>
@@ -168,22 +129,16 @@ const Notescollec = () => {
         <div className="notescollec pb-2 w-full ">
           {loading && (
             <div className="flex justify-start items-center gap-4">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-gray-900"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-500"></div>
               <p className="text-lg font-bold text-gray-900">Loading...</p>
             </div>
           )}
           <div className="grid lg:grid-cols-4 sm:grid-cols-3 w-full gap-4 ">
-            {filteredDocs && Docs}
+            {user.filteredData.length ? Docs : null}
           </div>
         </div>
 
-        {filteredDocs && (
-          <Pagination
-            docsPerPage={docsPerPage}
-            totalDocs={filteredDocs.length}
-            paginate={paginate}
-          />
-        )}
+        {user.filteredData.length ? <Pagination /> : null}
       </div>
     </section>
   );

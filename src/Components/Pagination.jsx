@@ -1,6 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import { useSearchParams } from "react-router-dom";
+import { AppContext } from "../Contexts/AppContext";
 
-const Pagination = ({ docsPerPage, totalDocs, paginate }) => {
+const Pagination = () => {
+  const { state, dispatch } = useContext(AppContext);
+  const { user, docsPerPage } = state;
+  const totalDocs = user.filteredData.length;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const paginate = (key, value) => {
+    setSearchParams((prevParam) => {
+      prevParam.set(key, value);
+      return prevParam;
+    });
+  };
   const totalPgBtn = Math.ceil(totalDocs / docsPerPage);
   // console.log(totalPgBtn);
   const [start, setStart] = useState(1);

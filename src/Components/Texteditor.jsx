@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams, useLocation, useOutletContext } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { AppContext } from "../Contexts/AppContext";
 
 import {
   setDoc,
@@ -45,13 +46,12 @@ const formats = [
 ];
 
 const Texteditor = () => {
-  const [saved, setSaved] = useState(false);
+  const { state, dispatch } = useContext(AppContext);
+  const { user } = state;
   const location = useLocation();
-  const { userData, trashedDocs, setTrashedDocs } = useOutletContext();
   const { noteID } = useParams();
 
-  // console.log(...trashedDocs);
-
+  const [saved, setSaved] = useState(false);
   const [noteData, setNoteData] = useState({
     id: noteID,
     title: "",
@@ -61,9 +61,7 @@ const Texteditor = () => {
 
   useEffect(() => {
     async function getData() {
-      const data = (await getDoc(doc(colRef, userData.userID))).data();
-      const { notesdata } = data;
-      notesdata.forEach((obj) => {
+      user.notesData.forEach((obj) => {
         if (obj.id === noteID) {
           setNoteData((prev) => ({
             ...prev,
@@ -84,46 +82,51 @@ const Texteditor = () => {
     setNoteData((prev) => ({ ...prev, title: value }));
   };
 
-  // Save Note and add to notesdata
   const saveNote = () => {
     setSaved(true);
     (async () => {
-      const data = (await getDoc(doc(colRef, userData.userID))).data();
-      const { notesdata } = data;
+      if (user.notesData.length === 0) {
+        updateDoc(doc(colRef, user.userID), {
+          notesdata: arrayUnion(noteData),
+        });
+        dispatch({
+          type: "SET_NOTES_DATA",
+          payload: [noteData],
+        });
+        return;
+      }
 
-      if (notesdata.length === 0) {
-        updateDoc(doc(colRef, userData.userID), {
+      const notePresent = false;
+      const updatedArr = user.notesData.map((obj) => {
+        if (obj.id === noteID) {
+          notePresent = true;
+          obj.title = noteData.title;
+          obj.content = noteData.content;
+          return obj;
+        }
+        return obj;
+      });
+      dispatch({ type: "SET_NOTES_DATA", payload: updatedArr });
+      if (notePresent) {
+        updateDoc(doc(colRef, user.userID), {
+          notesdata: updatedArr,
+        });
+      } else {
+        updateDoc(doc(colRef, user.userID), {
           notesdata: arrayUnion(noteData),
         });
       }
-
-      notesdata.forEach((obj) => {
-        if (obj.id === noteID) {
-          obj.title = noteData.title;
-          obj.content = noteData.content;
-
-          const updatedArr = notesdata;
-          updateDoc(doc(colRef, userData.userID), {
-            notesdata: updatedArr,
-          });
-        } else {
-          updateDoc(doc(colRef, userData.userID), {
-            notesdata: arrayUnion(noteData),
-          });
-        }
-      });
     })();
   };
 
-  // Delete Note and add to trash
   const deleteNote = () => {
     (async () => {
-      const data = (await getDoc(doc(colRef, userData.userID))).data();
-      const { notesdata, trash } = data;
-      const updatedArr = notesdata.filter((el) => el.id !== noteID);
-      //console.log(trash);
-      if (trash.length === 0) {
-        updateDoc(doc(colRef, userData.userID), {
+      // const data = (await getDoc(doc(colRef, userData.userID))).data();
+      // const { notesdata, trash } = data;
+      const updatedArr = user.notesData.filter((el) => el.id !== noteID);
+      dispatch({ type: "SET_NOTES_DATA", payload: updatedArr });
+      if (user.trash.length === 0) {
+        updateDoc(doc(colRef, user.userID), {
           notesdata: updatedArr,
           trash: arrayUnion(noteData),
         });
@@ -133,22 +136,16 @@ const Texteditor = () => {
           title: "",
           content: "",
         }));
-
         return;
       }
-
-      notesdata.forEach((obj) => {
+      user.notesData.forEach((obj) => {
         if (obj.id === noteID) {
-          setTrashedDocs([...trashedDocs, obj]);
-          setNoteData((prev) => ({
-            ...prev,
-            title: "",
-            content: "",
-          }));
-
-          updateDoc(doc(colRef, userData.userID), {
+          const prevTrash = user.trash;
+          const newTrash = [...prevTrash, noteData];
+          dispatch({ type: "SET_TRASH", payload: newTrash });
+          updateDoc(doc(colRef, user.userID), {
             notesdata: updatedArr,
-            trash: [...trashedDocs, obj],
+            trash: newTrash,
           });
         } else {
           setNoteData((prev) => ({

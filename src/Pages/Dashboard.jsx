@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-import { PassDataContext } from "../Contexts/PassData";
 import DashboardImg from "../images/bg_slides/slide2.jpg";
-// Components
 import Docscollec from "../Components/Docscollec";
-import Scratchpad from "../Components/Scratchpad";
-import SearchBar from "../Components/SearchBar";
-import { useOutletContext } from "react-router-dom";
 import "lazysizes";
 import { getDoc, doc, colRef } from "../firebase";
+import { AppContext } from "../Contexts/AppContext";
 
 const date = new Date();
 const options = {
@@ -19,19 +15,8 @@ const options = {
 const todayDate = date.toLocaleDateString("en-US", options);
 
 const Dashboard = () => {
-  const {
-    userData,
-    setUserData,
-    savedDocs,
-    setSavedDocs,
-    trashedDocs,
-    setTrashedDocs,
-    filteredDocs,
-    setFilteredDocs,
-    viewSavedDocs,
-    loading,
-  } = useOutletContext();
-
+  const { state, dispatch } = React.useContext(AppContext);
+  const { user } = state;
   const style = {
     background: `url(${DashboardImg})`,
     backgroundPosition: "down",
@@ -50,7 +35,7 @@ const Dashboard = () => {
           <div className="bg-white text-gray-600 font-bold min-w-max sm:px-10 px-4 py-3 rounded-md shadow-md flex justify-start items-center gap-2">
             <p className="">Good Morning 🌄 </p>
             <p className="text-gray-900 font-extrabold font-lato">
-              {userData.username} 😎
+              {user.username} 😎
             </p>
           </div>
 
@@ -60,22 +45,7 @@ const Dashboard = () => {
         </div>
 
         <div className="flex justify-start items-center gap-4 sm:w-[90%] mx-auto z-50 h-max">
-          <PassDataContext.Provider
-            value={{
-              userData,
-              setUserData,
-              savedDocs,
-              setSavedDocs,
-              trashedDocs,
-              setTrashedDocs,
-              filteredDocs,
-              setFilteredDocs,
-              viewSavedDocs,
-              loading,
-            }}
-          >
-            <Docscollec />
-          </PassDataContext.Provider>
+          <Docscollec />
         </div>
       </div>
     </div>

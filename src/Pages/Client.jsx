@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Sidepanel from "../Components/Sidepanel";
 import {
   Outlet,
@@ -7,36 +7,17 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { db, doc, getDoc, setDoc } from "../firebase";
-import Dashboard from "./Dashboard";
+import { AppContext } from "../Contexts/AppContext";
 
 const Client = () => {
-  const initialData = {
-    verified: false,
-    userID: "",
-    username: "",
-    email: "",
-    notesData: [],
-    tags: [],
-  };
+  const { state, dispatch } = useContext(AppContext);
+  const savedData = sessionStorage.getItem("userData");
+  const userAuth = JSON.parse(savedData);
+  const userId = userAuth.uid;
+  const userVerified = userAuth.verified;
 
-  const [userData, setUserData] = useState(initialData);
-  const userId = sessionStorage.getItem("userId");
-  const userVerified = sessionStorage.getItem("userVerified");
   const location = useLocation();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [savedDocs, setSavedDocs] = useState([]);
-  const [trashedDocs, setTrashedDocs] = useState([]);
-  const [filteredDocs, setFilteredDocs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState({
-    tagmsg: "",
-    prevmasg: "",
-    nextmsg: "",
-    savemsg: "",
-    deletmsg: "",
-  });
 
   // set the state by clicking the tags in the sidepanel which allow us in filtering the notes
   const [filterTag, setFilterTag] = useState("");
@@ -48,47 +29,52 @@ const Client = () => {
       const docRef = doc(db, "users", userId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setUserData((prev) => ({
-          ...prev,
-          userID: userId,
-          username: docSnap.data().username,
-          email: docSnap.data().email,
-          notesData: docSnap.data().notesdata,
-          tags: docSnap.data().tags,
-          verified: userVerified,
-        }));
-        setSavedDocs(docSnap.data().notesdata);
-        setFilteredDocs(docSnap.data().notesdata);
-        setTrashedDocs(docSnap.data().trash);
-        setLoading(false);
+        dispatch({
+          type: "SET_USER",
+          payload: {
+            userID: userId,
+            username: docSnap.data().username,
+            email: docSnap.data().email,
+            notesData: docSnap.data().notesdata,
+            tags: docSnap.data().tags,
+            verified: userVerified,
+            trash: docSnap.data().trash,
+            filteredData: docSnap.data().notesdata,
+          },
+        });
+        dispatch({
+          type: "SET_LOADING",
+          payload: false,
+        });
       }
     } catch (err) {
       console.log(err.message);
     }
   }
 
+  // Filter Docs by tags
+  // useEffect(() => {
+  //   if (tag) {
+  //     const filtered = user.notesData.filter((obj) => {
+  //       if (obj.tags === undefined) return false;
+  //       return obj.tags.includes(tag);
+  //     });
+  //     dispatch({ type: "SET_FILTERED_DATA", payload: filtered });
+  //   }
+  //   if (trash) {
+  //     console.log("trash");
+  //     const filtered = user.trash;
+  //     dispatch({ type: "SET_FILTERED_DATA", payload: filtered });
+  //   }
+  // }, [tag, trash]);
+
   useEffect(() => {
-    // Check if the user is logged in and verified
     if (userId && userVerified) {
       getUserData();
     } else {
-      // Navigate the user to login page if not logged in
       navigate("/login");
     }
   }, [userId, userVerified, navigate]);
-
-  // const viewDeletedDocs = () => {
-  //   setFilteredDocs(trashedDocs);
-  // };
-
-  const viewSavedDocs = () => {
-    setSearchParams((prevParam) => {
-      prevParam.delete("trash");
-      prevParam.delete("tag");
-      return prevParam;
-    });
-    setFilteredDocs(savedDocs);
-  };
 
   return (
     <div className="h-[100vh] flex justify-start items-start relative">
@@ -99,27 +85,8 @@ const Client = () => {
         <i className="fa-solid fa-bars"></i>
       </div>
 
-      <Sidepanel
-        SidepanelOpen={SidepanelOpen}
-        userData={userData}
-        initialData={initialData}
-        setUserData={setUserData}
-        setFilterTag={setFilterTag}
-      />
-      <Outlet
-        context={{
-          userData,
-          setUserData,
-          savedDocs,
-          setSavedDocs,
-          trashedDocs,
-          setTrashedDocs,
-          filteredDocs,
-          setFilteredDocs,
-          viewSavedDocs,
-          loading,
-        }}
-      />
+      <Sidepanel SidepanelOpen={SidepanelOpen} setFilterTag={setFilterTag} />
+      <Outlet />
     </div>
   );
 };

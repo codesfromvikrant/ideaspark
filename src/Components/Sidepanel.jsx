@@ -1,28 +1,17 @@
-import React, { useState, useEffect } from "react";
-// Images
+import React, { useState, useEffect, useContext } from "react";
 import EvernoteLogo from "../images/idea_spark_logo.png";
-// Components
 import Newnote from "./Addnote";
-// Routing
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { db, doc, getDoc, setDoc } from "../firebase";
 import Addtags from "./Addtags";
 import { nanoid } from "nanoid";
-// Hooks
+import { AppContext } from "../Contexts/AppContext";
 
-const Sidepanel = ({
-  SidepanelOpen,
-  userData,
-  initialData,
-  setUserData,
-  setFilterTag,
-}) => {
-  const { userId } = useParams();
+const Sidepanel = ({ SidepanelOpen, setFilterTag }) => {
+  const { state, dispatch } = useContext(AppContext);
+  const { user, message, tag } = state;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  // const [tags, setTags] = useState([]);
-  const [addTag, setAddTag] = useState("");
-  const [message, setMessage] = useState("");
 
   function filtering(key, value) {
     setSearchParams((prevParam) => {
@@ -31,78 +20,63 @@ const Sidepanel = ({
     });
   }
 
-  async function getTags() {
+  const addTagToDB = async () => {
     try {
-      const docRef = doc(db, "users", userId);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const tags = docSnap.data().tags;
-        setUserData((prev) => ({
-          ...prev,
-          tags: tags,
-        }));
-      }
+      const tagadded = false;
+      user.tags.forEach((el) => {
+        if (el.tagname.toLowerCase() === tag.toLowerCase()) {
+          dispatch({ type: "SET_MESSAGE", payload: "Tag already exists" });
+          tagadded = true;
+        }
+      });
+      if (tagadded === true || tag === "") return;
+      const docRef = doc(db, "users", user.userID);
+      const prevTags = user.tags;
+      const newTags = [
+        ...prevTags,
+        { id: nanoid(), tagname: tag, docscount: 0 },
+      ];
+      dispatch({ type: "SET_TAGS", payload: newTags });
+      await setDoc(docRef, { tags: newTags }, { merge: true });
     } catch (err) {
       console.log(err.message);
     }
-  }
+  };
 
-  useEffect(() => {
-    if (userData.userID) {
-      getTags();
-    }
-  }, [userData.userID]);
+  const deleteTagFromDB = async (id) => {
+    const prevTags = user.tags;
+    const newTags = prevTags.filter((el) => {
+      return el.id != id;
+    });
+    dispatch({ type: "SET_TAGS", payload: newTags });
+  };
 
-  const tagList = userData.tags.map((tag) => {
+  const tagList = user.tags.map((tag) => {
     return (
       <div
-        key={nanoid()}
-        // onClick={() => {
-        //   handleTrash("tag", tag);
-        // }}
+        key={tag.id}
         className="flex justify-between items-center gap-3 text-gray-300 pl-4 py-1"
       >
         <p
           onClick={() => {
-            // setFilterTag(tag.tagname);
             filtering("tag", tag.tagname);
           }}
           className="cursor-pointer text-gray-400 text-sm hover:text-blue-500 capitalize"
         >
           {tag.tagname}
         </p>
-        <div className="bg-slate-800 rounded text-xs text-gray-400 py-1 px-2 font-semibold flex justify-center items-center">
-          {tag.docscount}+
+        <div className="flex justify-end items-center gap-2">
+          <div className="bg-slate-800 rounded text-xs text-gray-400 py-1 px-2 font-semibold flex justify-center items-center">
+            {tag.docscount}
+          </div>
+          <i
+            onClick={() => deleteTagFromDB(tag.id)}
+            className="fa-solid fa-trash text-gray-100 cursor-pointer hover:text-red-500 transition-all duration-750"
+          ></i>
         </div>
       </div>
     );
   });
-
-  const addTagToDB = async () => {
-    try {
-      const tagadded = false;
-      userData.tags.forEach((tag) => {
-        if (tag.tagname.toLowerCase() === addTag.toLowerCase()) {
-          setMessage("Tag already exists");
-          tagadded = true;
-        }
-      });
-      if (tagadded === true || addTag === "") return;
-      const docRef = doc(db, "users", userData.userID);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const prevTags = docSnap.data().tags;
-        const newTags = [...prevTags, { tagname: addTag, docscount: 0 }];
-        await setDoc(docRef, { tags: newTags }, { merge: true });
-        setUserData((prev) => ({
-          ...prev,
-          tags: newTags,
-        }));
-      }
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
 
   const styles = {
     display: SidepanelOpen ? "block" : "none",
@@ -120,7 +94,7 @@ const Sidepanel = ({
 
         <div
           onClick={() => {
-            navigate(`/user/${userId}`);
+            navigate(`/user/${user.userId}`);
           }}
           className="home flex justify-start items-center gap-3 text-gray-300 hover:bg-slate-800 hover:px-4 hover:py-3 hover:text-white hover:font-semibold transition-all duration-500 rounded-md  font-medium my-4 cursor-pointer"
         >
@@ -147,13 +121,7 @@ const Sidepanel = ({
         </div>
         <div className="my-2">{tagList}</div>
 
-        <Addtags
-          addTag={addTag}
-          addTagToDB={addTagToDB}
-          message={message}
-          setMessage={setMessage}
-          setAddTag={setAddTag}
-        />
+        <Addtags addTagToDB={addTagToDB} />
 
         <div
           onClick={() => {
@@ -166,13 +134,7 @@ const Sidepanel = ({
         </div>
       </div>
 
-      <button
-        onClick={() => {
-          setUserData(initialData);
-          navigate("/");
-        }}
-        className="text-white bg-slate-800 font-semibold w-full hover:bg-blue-600 transition-all duration-500 p-2 rounded-md"
-      >
+      <button className="text-white bg-slate-800 font-semibold w-full hover:bg-blue-600 transition-all duration-500 p-2 rounded-md">
         Log Out
       </button>
     </aside>
