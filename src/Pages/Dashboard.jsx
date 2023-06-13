@@ -28,8 +28,8 @@ const Dashboard = () => {
     <div className="w-full h-[100vh] bg-gray-200 overflow-y-scroll ">
       <div
         className="lazyload w-full h-[25rem] z-0 py-6"
-        data-bg={DashboardImg}
-        style={style}
+        // data-bg={DashboardImg}
+        // style={style}
       >
         <div className="flex justify-start sm:items-center items-start  flex-wrap gap-4 w-[90%] mx-auto">
           <div className="bg-white text-gray-600 font-bold min-w-max sm:px-10 px-4 py-3 rounded-md shadow-md flex justify-start items-center gap-2">

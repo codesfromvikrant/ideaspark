@@ -2,14 +2,11 @@ import React, { useState, useEffect, useContext } from "react";
 import EvernoteLogo from "../images/idea_spark_logo.png";
 import Newnote from "./Addnote";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { db, doc, getDoc, setDoc } from "../firebase";
-import Addtags from "./Addtags";
-import { nanoid } from "nanoid";
 import { AppContext } from "../Contexts/AppContext";
 
 const Sidepanel = ({ SidepanelOpen, setFilterTag }) => {
   const { state, dispatch } = useContext(AppContext);
-  const { user, message, tag } = state;
+  const { user, tag } = state;
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -19,64 +16,6 @@ const Sidepanel = ({ SidepanelOpen, setFilterTag }) => {
       return prevParam;
     });
   }
-
-  const addTagToDB = async () => {
-    try {
-      const tagadded = false;
-      user.tags.forEach((el) => {
-        if (el.tagname.toLowerCase() === tag.toLowerCase()) {
-          dispatch({ type: "SET_MESSAGE", payload: "Tag already exists" });
-          tagadded = true;
-        }
-      });
-      if (tagadded === true || tag === "") return;
-      const docRef = doc(db, "users", user.userID);
-      const prevTags = user.tags;
-      const newTags = [
-        ...prevTags,
-        { id: nanoid(), tagname: tag, docscount: 0 },
-      ];
-      dispatch({ type: "SET_TAGS", payload: newTags });
-      await setDoc(docRef, { tags: newTags }, { merge: true });
-    } catch (err) {
-      console.log(err.message);
-    }
-  };
-
-  const deleteTagFromDB = async (id) => {
-    const prevTags = user.tags;
-    const newTags = prevTags.filter((el) => {
-      return el.id != id;
-    });
-    dispatch({ type: "SET_TAGS", payload: newTags });
-  };
-
-  const tagList = user.tags.map((tag) => {
-    return (
-      <div
-        key={tag.id}
-        className="flex justify-between items-center gap-3 text-gray-300 pl-4 py-1"
-      >
-        <p
-          onClick={() => {
-            filtering("tag", tag.tagname);
-          }}
-          className="cursor-pointer text-gray-400 text-sm hover:text-blue-500 capitalize"
-        >
-          {tag.tagname}
-        </p>
-        <div className="flex justify-end items-center gap-2">
-          <div className="bg-slate-800 rounded text-xs text-gray-400 py-1 px-2 font-semibold flex justify-center items-center">
-            {tag.docscount}
-          </div>
-          <i
-            onClick={() => deleteTagFromDB(tag.id)}
-            className="fa-solid fa-trash text-gray-100 cursor-pointer hover:text-red-500 transition-all duration-750"
-          ></i>
-        </div>
-      </div>
-    );
-  });
 
   const styles = {
     display: SidepanelOpen ? "block" : "none",
@@ -112,16 +51,16 @@ const Sidepanel = ({ SidepanelOpen, setFilterTag }) => {
           <p>Tasks</p>
         </div>
 
-        <div className="flex justify-between items-center mb-2 cursor-pointer">
+        <div
+          onClick={() => dispatch({ type: "SET_TAG_DIALOG", payload: true })}
+          className="flex justify-between items-center mb-2 cursor-pointer hover:bg-slate-800 hover:px-4 hover:py-3  hover:text-white hover:font-semibold transition-all duration-500 rounded-md"
+        >
           <div className="flex justify-start items-center gap-3 text-gray-300 font-medium cursor-pointer ">
-            <i className="fa fa-solid fa-tag"></i>
+            <i className="fa fa-solid fa-tag text-gray-300"></i>
             <p>Tags</p>
           </div>
-          <i className="fa-solid fa-caret-down text-white"></i>
+          <i className="fa-solid fa-caret-right text-gray-200"></i>
         </div>
-        <div className="my-2">{tagList}</div>
-
-        <Addtags addTagToDB={addTagToDB} />
 
         <div
           onClick={() => {

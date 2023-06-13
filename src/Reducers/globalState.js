@@ -12,5 +12,6 @@ export const globalState = {
   },
   messages: "",
   tag: "",
+  tagDialog: false,
   docsPerPage: 8,
 };

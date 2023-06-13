@@ -50,6 +50,11 @@ const reducer = (state, action) => {
           tags: action.payload
         }
       }
+    case "SET_TAG_DIALOG":
+      return {
+        ...state,
+        tagDialog: action.payload
+      }
     case "SET_LOADING":
       return {
         ...state,

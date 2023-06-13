@@ -6,27 +6,27 @@ const Addtags = ({ addTagToDB }) => {
   const { message, tag } = state;
   return (
     <>
-      <div className="flex justify-start items-center gap-2 h-max">
+      <div className="flex justify-between items-center gap-1 w-full bg-gray-300 rounded-md py-2 shadow font-lato px-3">
         <input
           type="text"
           value={tag}
           onChange={(e) => {
             dispatch({ type: "SET_TAG", payload: e.target.value });
           }}
-          className="w-full bg-slate-800 rounded-md py-2 shadow-md  placeholder-gray-400 font-extralight tracking-wider font-lato sm:px-4 px-3 text-gray-200 text-sm outline-none"
-          placeholder="Create tag..."
+          className="bg-transparent placeholder-gray-500 text-gray-800 font-semibold text-sm outline-none"
+          placeholder="Add tag..."
         />
-
-        <button
-          onClick={() => {
-            addTagToDB();
-            dispatch({ type: "SET_TAG", payload: "" });
-          }}
-          className="bg-slate-800 hover:bg-blue-500  transition-all duration-500 shadow-md p-2 text-sm text-gray-200 rounded-md"
-        >
-          Add
-        </button>
+        <div className=" w-max">
+          <i
+            onClick={() => {
+              addTagToDB();
+              dispatch({ type: "SET_TAG", payload: "" });
+            }}
+            className="fa-solid fa-plus text-lg text-blue-500"
+          ></i>
+        </div>
       </div>
+
       <p className="text-xs tracking-wider text-red-400">{message}</p>
     </>
   );

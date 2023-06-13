@@ -30,10 +30,10 @@ const Notescollec = () => {
     dispatch({ type: "SET_FILTERED_DATA", payload: searchedDocs });
   };
 
-  // const openDialog = (id) => {
-  //   const dialog = document.querySelector(`#dropdown-${id}`);
-  //   dialog.classList.toggle("hidden");
-  // };
+  const openDialog = (id) => {
+    const dialog = document.querySelector(`#dropdown-${id}`);
+    dialog.classList.toggle("hidden");
+  };
 
   // Move the doc to trash
   const moveToTrash = (id) => {

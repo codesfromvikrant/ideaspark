@@ -8,9 +8,12 @@ import {
 } from "react-router-dom";
 import { db, doc, getDoc, setDoc } from "../firebase";
 import { AppContext } from "../Contexts/AppContext";
+import TagListDialog from "../Components/TagListDialog";
 
 const Client = () => {
   const { state, dispatch } = useContext(AppContext);
+  const { tagDialog } = state;
+  console.log(tagDialog);
   const savedData = sessionStorage.getItem("userData");
   const userAuth = JSON.parse(savedData);
   const userId = userAuth.uid;
@@ -84,7 +87,7 @@ const Client = () => {
       >
         <i className="fa-solid fa-bars"></i>
       </div>
-
+      {tagDialog && <TagListDialog />}
       <Sidepanel SidepanelOpen={SidepanelOpen} setFilterTag={setFilterTag} />
       <Outlet />
     </div>
