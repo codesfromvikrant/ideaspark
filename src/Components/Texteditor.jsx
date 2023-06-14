@@ -3,6 +3,7 @@ import { useParams, useLocation, useOutletContext } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { AppContext } from "../Contexts/AppContext";
+import { toast } from "react-toastify";
 
 import {
   setDoc,
@@ -96,13 +97,12 @@ const Texteditor = () => {
         return;
       }
 
-      const notePresent = false;
+      let notePresent = false;
       const updatedArr = user.notesData.map((obj) => {
         if (obj.id === noteID) {
           notePresent = true;
           obj.title = noteData.title;
           obj.content = noteData.content;
-          return obj;
         }
         return obj;
       });
@@ -116,6 +116,7 @@ const Texteditor = () => {
           notesdata: arrayUnion(noteData),
         });
       }
+      toast.info("Note Saved Successfully");
     })();
   };
 
@@ -155,6 +156,7 @@ const Texteditor = () => {
           }));
         }
       });
+      toast.warn("Note Deleted Successfully");
     })();
   };
 

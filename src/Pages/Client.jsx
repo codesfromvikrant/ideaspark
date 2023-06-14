@@ -13,7 +13,6 @@ import TagListDialog from "../Components/TagListDialog";
 const Client = () => {
   const { state, dispatch } = useContext(AppContext);
   const { tagDialog } = state;
-  console.log(tagDialog);
   const savedData = sessionStorage.getItem("userData");
   const userAuth = JSON.parse(savedData);
   const userId = userAuth.uid;
