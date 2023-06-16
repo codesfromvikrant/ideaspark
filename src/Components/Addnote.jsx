@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 // NanoID
 import { nanoid } from "nanoid";
 
-const Newnote = () => {
+const AddNote = () => {
   const noteID = nanoid();
 
   const navigate = useNavigate();
@@ -13,12 +13,13 @@ const Newnote = () => {
         onClick={() => {
           navigate(`./n/${noteID}`);
         }}
-        className="text-gray-900 hover:text-white bg-white hover:bg-blue-600 transition-all duration-500 w-full p-2 my-4 rounded-md font-semibold"
+        className="text-sm font-semibold text-white bg-blue-500 hover:bg-blue-700 transition-all duration-750 py-2 px-4 rounded shadow"
       >
-        New Note
+        Add New Note{"  "}
+        <i className="fa-sharp fa-solid fa-file text-white"></i>
       </button>
     </>
   );
 };
 
-export default Newnote;
+export default AddNote;
