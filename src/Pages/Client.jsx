@@ -9,6 +9,7 @@ import {
 import { db, doc, getDoc, setDoc } from "../firebase";
 import { AppContext } from "../Contexts/AppContext";
 import TagListDialog from "../Components/TagListDialog";
+import MiddlePanel from "../Components/MiddlePanel";
 
 const Client = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -44,6 +45,7 @@ const Client = () => {
             filteredData: docSnap.data().notesdata,
           },
         });
+        console.log(docSnap.data().trash);
         dispatch({
           type: "SET_LOADING",
           payload: false,
@@ -88,6 +90,7 @@ const Client = () => {
       </div>
       {tagDialog && <TagListDialog />}
       <Sidepanel SidepanelOpen={SidepanelOpen} setFilterTag={setFilterTag} />
+      <MiddlePanel />
       <Outlet />
     </div>
   );

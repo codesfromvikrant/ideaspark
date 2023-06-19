@@ -19,7 +19,9 @@ const Filters = () => {
 
   const tagsList = user.tags.map((el) => {
     return (
-      <option className="bg-blue-200 text-gray-800 font-semibold">{el}</option>
+      <option key={el} className="bg-blue-200 text-gray-800 font-semibold">
+        {el}
+      </option>
     );
   });
 

@@ -42,10 +42,9 @@ const Notescollec = () => {
   };
 
   const Docs = user.filteredData.map((obj, i) => {
-    // conditions for pagination
     let startDocs = (page - 1) * docsPerPage;
     let endDocs = page * docsPerPage;
-    if (endDocs > user.notesData.length) endDocs = user.notesData.length;
+    if (endDocs > user.filteredData.length) endDocs = user.filteredData.length;
     if (i < startDocs || i >= endDocs) return null;
 
     const content = obj.content;
@@ -54,8 +53,8 @@ const Notescollec = () => {
         key={obj.id}
         className="cursor-pointer h-[15rem] p-4 rounded shadow-md relative text-sm bg-white text-gray-900 overflow-hidden"
       >
-        {/* <Menu openDialog={openDialog} id={obj.id} /> */}
-        {/* <Dropdown id={obj.id} moveToTrash={moveToTrash} notetags={obj.tags} /> */}
+        <Menu openDialog={openDialog} id={obj.id} />
+        <Dropdown id={obj.id} moveToTrash={moveToTrash} notetags={obj.tags} />
         <Link to={`/user/${user.userID}/n/${obj.id}`}>
           <p className="font-bold text-base hover:text-blue-600 transition-all">
             {obj.title ? obj.title : "Untitled"}
@@ -68,6 +67,21 @@ const Notescollec = () => {
       </div>
     );
   });
+
+  useEffect(() => {
+    if (trash) {
+      dispatch({ type: "SET_FILTERED_DATA", payload: user.trash });
+    } else if (tag) {
+      const filteredData = user.filteredData.filter((obj) => {
+        if (obj.tags.includes(tag)) {
+          return obj;
+        }
+      });
+      dispatch({ type: "SET_FILTERED_DATA", payload: filteredData });
+    } else {
+      dispatch({ type: "SET_FILTERED_DATA", payload: user.notesData });
+    }
+  }, [trash, tag]);
 
   return (
     <section className="w-full">
@@ -83,7 +97,7 @@ const Notescollec = () => {
               <p className="text-lg font-bold text-gray-900">Loading...</p>
             </div>
           )}
-          <div className="grid lg:grid-cols-5 sm:grid-cols-3 w-full gap-4 ">
+          <div className="grid  lg:grid-cols-4 md:grid-cols-4 sm:grid-cols-3 w-full gap-4 ">
             {user.filteredData.length ? Docs : null}
           </div>
         </div>

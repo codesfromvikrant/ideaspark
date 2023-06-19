@@ -29,6 +29,14 @@ const reducer = (state, action) => {
           filteredData: action.payload,
         },
       };
+    case "SET_ARCHIVED":
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          archived: action.payload,
+        },
+      };
     case "SET_TRASH":
       return {
         ...state,

@@ -6,7 +6,7 @@ const Menu = ({ openDialog, id }) => {
       onClick={() => {
         openDialog(id);
       }}
-      className="bg-gray-300 hover:bg-blue-300 transition-all  shadow p-1 rounded flex justify-center absolute right-2 "
+      className="bg-slate-300 shadow p-1 rounded flex justify-center absolute right-2 "
     >
       <i className="fa fa-solid fa-ellipsis-vertical text-base text-gray-900 z-99"></i>
     </div>

@@ -9,6 +9,7 @@ export const globalState = {
     tags: [],
     trash: [],
     filteredData: [],
+    archived: [],
   },
   messages: "",
   tag: "",
